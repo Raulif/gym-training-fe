@@ -21,7 +21,7 @@ export default function Home() {
   }
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-between py-10 px-4">
+    <main className="relative flex min-h-screen flex-col items-center justify-between py-10 px-4 max-w-[600px] mx-auto">
         <div className="w-24 h-10 absolute right-2 top-2 text-right font-mono text-sm">
           <button
             onClick={onFilterClick}
@@ -46,7 +46,7 @@ export default function Home() {
             </div>
           )}
         </div>
-      <div className="w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
+      <div className="w-full font-mono text-sm flex flex-col">
         {filterList !== 2 && <><h3>Oberkörper</h3>
         <ul className="flex flex-col gap-4 mt-10 mb-12">
           {dayOneTrainings?.map((training) => (
