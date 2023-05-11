@@ -31,6 +31,7 @@ const ListElement = ({ training }: { training: any }) => {
                 value={newWeight}
                 onChange={onInputChange}
                 autoFocus
+                type="number"
               />
             ) : (
               <p className="text-xl">{training.weight}</p>
