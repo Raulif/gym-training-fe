@@ -28,9 +28,24 @@ const DataProvider = ({ children }: { children: ReactNode }) => {
 
   const updateAllSets = async (training: any, amount: number) => {
     if (!firebase?.db) return;
-    const trainingRef = doc(firebase.db, TRAININGS_COLLECTION, training.id);
-    await setDoc(trainingRef, { weight: amount }, { merge: true });
-    await fetchData();
+    try {
+      const trainingRef = doc(firebase.db, TRAININGS_COLLECTION, training.id);
+      await setDoc(
+        trainingRef,
+        {
+          weight: amount,
+          sets: [
+            { reps: 15, weight: amount },
+            { reps: 15, weight: amount },
+            { reps: 15, weight: amount },
+          ],
+        },
+        { merge: true }
+      );
+      await fetchData();
+    } catch (error) {
+      console.error({error});
+    }
   };
 
   const updateBasicInfo = async (training: any, newInfo: any) => {
@@ -38,9 +53,9 @@ const DataProvider = ({ children }: { children: ReactNode }) => {
     const trainingRef = doc(firebase.db, TRAININGS_COLLECTION, training.id);
     await setDoc(trainingRef, newInfo, { merge: true });
     await fetchData();
-  }
+  };
 
-  const updateTrainingSet = async () => {}
+  const updateTrainingSet = async () => {};
 
   const fetchData = useCallback(async () => {
     if (firebase?.db) {
@@ -77,7 +92,7 @@ const DataProvider = ({ children }: { children: ReactNode }) => {
         updateAllSets,
         dayOneTrainings,
         dayTwoTrainings,
-        updateBasicInfo
+        updateBasicInfo,
       }}
     >
       {children}

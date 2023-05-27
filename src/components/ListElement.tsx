@@ -19,7 +19,7 @@ const ListElement = ({ training }: { training: any }) => {
   const [newName, setNewName] = useState(training.name);
   const [newType, setNewType] = useState(training.type);
   
-  const isWeight = newType === "weight";
+  const isWeight = newType !== "endurance";
   const isEndurance = newType === "endurance";
 
   const onInputChange = (e: any) => {
@@ -27,8 +27,9 @@ const ListElement = ({ training }: { training: any }) => {
   };
 
   const onConfirm = async () => {
+    console.log({editMain, isWeight, isEndurance})
     if (editMain && isWeight) {
-      updateAllSets && (await updateAllSets(training.id, newWeight));
+      updateAllSets && (await updateAllSets(training, newWeight));
     }
     if (editDetails) {
       const basicInfo = {
@@ -74,7 +75,7 @@ const ListElement = ({ training }: { training: any }) => {
     ? training?.sets?.[0]?.weight
     : isEndurance
     ? training?.sets?.reduce((acc: number, set: any) => acc + set.time, 0)
-    : null;
+    : training.weight;
 
   return (
     <li
@@ -132,7 +133,7 @@ const ListElement = ({ training }: { training: any }) => {
                   />
                 </button>
               </div>
-            ) : isWeight || showDetails ? (
+            ) : true ? (
               <button onClick={onEditClick}>
                 <Image
                   src="/icon-pencil.svg"
