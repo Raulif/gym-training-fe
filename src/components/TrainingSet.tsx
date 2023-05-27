@@ -30,15 +30,13 @@ const TrainingSet = ({
   const onLeftChange = (event: any) => {
     const value = parseInt(event.target.value);
     setNewValueLeft(value);
-    const field = isWeight ? "reps" : isEndurance ? "time" : 'reps';
-    onValueChange && onValueChange(value, field, index || 0);
+    onValueChange && onValueChange(value, 'valueLeft', index || 0);
   };
 
   const onRightChange = (event: any) => {
     const value = parseInt(event.target.value);
     setNewValueRight(value);
-    const field = isWeight ? "weight" : isEndurance ? "speed" : 'weight';
-    onValueChange && onValueChange(value, field, index || 0);
+    onValueChange && onValueChange(value, 'valueRight', index || 0);
   };
 
   return (

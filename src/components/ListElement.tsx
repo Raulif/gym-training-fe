@@ -8,12 +8,12 @@ const getTrainingType = (type: string) =>
   type === "weight" ? "Gewicht" : type === "endurance" ? "Ausdauer" : null;
 
 const ListElement = ({ training }: { training: any }) => {
-  const { updateAllSets, updateBasicInfo } = useContext(DataContext);
+  const { updateTraining } = useContext(DataContext);
   const [editMain, setEditMain] = useState(false);
   const [editDetails, setEditDetails] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
-  const [newWeight, setNewWeight] = useState(training?.sets?.[0]?.weight);
-  const [newSets, setNewSets] = useState<Array<any>>([]);
+  const [newValueRight, setNewValueRight] = useState(training?.sets?.[0]?.valueRight);
+  const [newSets, setNewSets] = useState<Array<any>>(training?.sets);
   const [newSet, setNewSet] = useState<any>({});
   const [createNewSet, setCreateNewSet] = useState(false);
   const [newName, setNewName] = useState(training.name);
@@ -23,29 +23,31 @@ const ListElement = ({ training }: { training: any }) => {
   const isEndurance = newType === "endurance";
 
   const onInputChange = (e: any) => {
-    setNewWeight(e.target.value);
+    setNewValueRight(e.target.value);
   };
 
-  const onConfirm = async () => {
-    console.log({editMain, isWeight, isEndurance})
-    if (editMain && isWeight) {
-      updateAllSets && (await updateAllSets(training, newWeight));
+  const updateAllSets = () => {
+    return newSets.map((set: any) => ({valueLeft: set.valueLeft, valueRight: newValueRight}))
+  }
+
+  const onSave = async () => {
+    const sets = editMain ? updateAllSets() : newSets
+    const updatedTraining = {
+      ...training,
+      name: newName || training.name,
+      type: newType || training.type,
+      sets: sets || training.sets,
     }
-    if (editDetails) {
-      const basicInfo = {
-        name: newName,
-        type: newType,
-      }
-      updateBasicInfo && (await updateBasicInfo(training, basicInfo));
-    }
+
+    updateTraining && (await updateTraining(training.id, updatedTraining));
     setEditMain(false);
     setEditDetails(false);
-  };
+  }
 
   const onCancel = () => {
     setEditMain(false);
     setEditDetails(false);
-    setNewWeight(training.weight);
+    setNewValueRight(training?.sets?.[0]?.valueRight);
     setNewName(training.name);
   };
 
@@ -66,16 +68,20 @@ const ListElement = ({ training }: { training: any }) => {
   };
 
   const onValueChange =(value: number, field: string, index: number) => {
-    const newSets = [...training?.sets];
-    newSets[index][field] = value;
-    setNewSets(newSets);
+    const updatedSets = newSets;
+    if (!updatedSets[index]) {
+      updatedSets[index] = {field: value};
+    } else {
+      updatedSets[index][field] = value;
+    }
+    setNewSets(updatedSets);
   }
 
   const mainAmount = isWeight
-    ? training?.sets?.[0]?.weight
+    ? newValueRight
     : isEndurance
-    ? training?.sets?.reduce((acc: number, set: any) => acc + set.time, 0)
-    : training.weight;
+    ? training?.sets?.reduce((acc: number, set: any) => acc + set.valueRight, 0)
+    : null;
 
   return (
     <li
@@ -96,7 +102,7 @@ const ListElement = ({ training }: { training: any }) => {
             {editMain ? (
               <input
                 className="h-8 p-2 w-16 text-right text-lg ml-2"
-                value={newWeight}
+                value={newValueRight}
                 onChange={onInputChange}
                 autoFocus
                 type="number"
@@ -122,7 +128,7 @@ const ListElement = ({ training }: { training: any }) => {
                   />
                 </button>
                 <button
-                  onClick={onConfirm}
+                  onClick={onSave}
                   className="w-10 flex justify-center"
                 >
                   <Image
@@ -174,8 +180,8 @@ const ListElement = ({ training }: { training: any }) => {
             isWeight ? (
               <TrainingSet
                 key={index}
-                valueRight={set.weight}
-                valueLeft={set.reps}
+                valueLeft={set.valueLeft}
+                valueRight={set.valueRight}
                 editing={editDetails}
                 index={index}
                 isWeight
@@ -184,8 +190,8 @@ const ListElement = ({ training }: { training: any }) => {
             ) : isEndurance ? (
               <TrainingSet
                 key={index}
-                valueRight={set.speed}
-                valueLeft={set.time}
+                valueLeft={set.valueLeft}
+                valueRight={set.valueRight}
                 editing={editDetails}
                 index={index}
                 isEndurance

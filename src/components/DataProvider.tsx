@@ -11,10 +11,9 @@ import { collection, getDocs, doc, setDoc } from "firebase/firestore";
 
 type Props = {
   trainings: Array<any>;
-  updateAllSets: (training: any, amount: number) => void;
   dayOneTrainings: Array<any>;
   dayTwoTrainings: Array<any>;
-  updateBasicInfo: (training: any, newInfo: any) => void;
+  updateTraining: (trainingId: string, data: any) => void;
 };
 
 const TRAININGS_COLLECTION = "trainings";
@@ -26,36 +25,12 @@ const DataProvider = ({ children }: { children: ReactNode }) => {
 
   const firebase = useFirebase();
 
-  const updateAllSets = async (training: any, amount: number) => {
+  const updateTraining = async (trainingId: string, data: any) => {
     if (!firebase?.db) return;
-    try {
-      const trainingRef = doc(firebase.db, TRAININGS_COLLECTION, training.id);
-      await setDoc(
-        trainingRef,
-        {
-          weight: amount,
-          sets: [
-            { reps: 15, weight: amount },
-            { reps: 15, weight: amount },
-            { reps: 15, weight: amount },
-          ],
-        },
-        { merge: true }
-      );
-      await fetchData();
-    } catch (error) {
-      console.error({error});
-    }
-  };
-
-  const updateBasicInfo = async (training: any, newInfo: any) => {
-    if (!firebase?.db) return;
-    const trainingRef = doc(firebase.db, TRAININGS_COLLECTION, training.id);
-    await setDoc(trainingRef, newInfo, { merge: true });
+    const docRef = doc(firebase.db, TRAININGS_COLLECTION, trainingId);
+    await setDoc(docRef, data, { merge: true });
     await fetchData();
-  };
-
-  const updateTrainingSet = async () => {};
+  }
 
   const fetchData = useCallback(async () => {
     if (firebase?.db) {
@@ -89,10 +64,9 @@ const DataProvider = ({ children }: { children: ReactNode }) => {
     <DataContext.Provider
       value={{
         trainings,
-        updateAllSets,
         dayOneTrainings,
         dayTwoTrainings,
-        updateBasicInfo,
+        updateTraining
       }}
     >
       {children}
@@ -104,7 +78,7 @@ export const DataContext = createContext<Partial<Props>>({
   dayOneTrainings: [],
   dayTwoTrainings: [],
   trainings: [],
-  updateAllSets: () => {},
+  updateTraining: () => {},
 });
 
 export default DataProvider;
